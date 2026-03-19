@@ -1,5 +1,7 @@
 package com.example.hrmsproject.service;
 
+import com.example.hrmsproject.dto.LoginRequestDto;
+import com.example.hrmsproject.dto.LoginResponseDto;
 import com.example.hrmsproject.entity.User;
 import com.example.hrmsproject.entity.UserRole;
 
@@ -22,6 +24,8 @@ public interface UserService {
     User updateUser(Long id, User user);
 
     void deleteUser(Long id);
+
+    LoginResponseDto login(LoginRequestDto loginRequestDto);
 }
 
 

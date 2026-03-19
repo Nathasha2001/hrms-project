@@ -1,5 +1,7 @@
 package com.example.hrmsproject.controller;
 
+import com.example.hrmsproject.dto.LoginRequestDto;
+import com.example.hrmsproject.dto.LoginResponseDto;
 import com.example.hrmsproject.entity.User;
 import com.example.hrmsproject.entity.UserRole;
 import com.example.hrmsproject.service.UserService;
@@ -61,5 +63,10 @@ public class UserController {
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok("User deleted successfully");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
+        return ResponseEntity.ok(userService.login(loginRequestDto));
     }
 }

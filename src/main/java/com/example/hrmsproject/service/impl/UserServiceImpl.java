@@ -1,5 +1,7 @@
 package com.example.hrmsproject.service.impl;
 
+import com.example.hrmsproject.dto.LoginRequestDto;
+import com.example.hrmsproject.dto.LoginResponseDto;
 import com.example.hrmsproject.entity.User;
 import com.example.hrmsproject.entity.UserRole;
 import com.example.hrmsproject.repository.ClientRepository;
@@ -96,5 +98,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+        User user = userRepository.findByUsername(loginRequestDto.getUsername())
+                .orElseThrow();new RuntimeException("Invalid username");
+        if (!user.getPassword().equals(loginRequestDto.getPassword())) {
+            throw new RuntimeException("Invalis password");
+
+        }
+        return new LoginResponseDto(
+                user.getId(),
+                user.getUsername(),
+                user.getRole(),
+                user.getClientId(),
+                "Login Successful"
+        );
+
     }
 }
