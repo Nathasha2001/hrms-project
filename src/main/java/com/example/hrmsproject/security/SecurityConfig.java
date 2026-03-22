@@ -1,7 +1,8 @@
 package com.example.hrmsproject.security;
 
 import com.example.hrmsproject.service.impl.CustomUserDetailsService;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -50,8 +51,8 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(customUserDetailsService);
+        DaoAuthenticationProvider provider =
+                new DaoAuthenticationProvider(customUserDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
