@@ -6,7 +6,9 @@ import com.example.hrmsproject.entity.User;
 import com.example.hrmsproject.entity.UserRole;
 import com.example.hrmsproject.repository.ClientRepository;
 import com.example.hrmsproject.repository.UserRepository;
+import com.example.hrmsproject.security.JwtUtil;
 import com.example.hrmsproject.service.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,10 +19,17 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ClientRepository clientRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public UserServiceImpl(UserRepository userRepository, ClientRepository clientRepository) {
+    public UserServiceImpl(UserRepository userRepository,
+                           ClientRepository clientRepository,
+                           PasswordEncoder passwordEncoder,
+                           JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.clientRepository = clientRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -42,7 +51,29 @@ public class UserServiceImpl implements UserService {
             user.setClientId(null);
         }
 
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         return userRepository.save(user);
+    }
+
+    @Override
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+        User user = userRepository.findByUsername(loginRequestDto.getUsername())
+                .orElseThrow(() -> new RuntimeException("Invalid username"));
+
+        if (!passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+
+        return new LoginResponseDto(
+                token,
+                user.getUsername(),
+                user.getRole().name(),
+                user.getClientId(),
+                "Login Successful"
+        );
     }
 
     @Override
@@ -76,7 +107,11 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         existingUser.setUsername(user.getUsername());
-        existingUser.setPassword(user.getPassword());
+
+        if (user.getPassword() != null && !user.getPassword().isBlank()) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
         existingUser.setRole(user.getRole());
 
         if (user.getRole() == UserRole.EMPLOYER) {
@@ -98,23 +133,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
-    }
-
-    @Override
-    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        User user = userRepository.findByUsername(loginRequestDto.getUsername())
-                .orElseThrow();new RuntimeException("Invalid username");
-        if (!user.getPassword().equals(loginRequestDto.getPassword())) {
-            throw new RuntimeException("Invalis password");
-
-        }
-        return new LoginResponseDto(
-                user.getId(),
-                user.getUsername(),
-                user.getRole(),
-                user.getClientId(),
-                "Login Successful"
-        );
-
     }
 }

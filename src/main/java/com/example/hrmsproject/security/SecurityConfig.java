@@ -35,11 +35,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/login", "/api/users/register").permitAll()
                         .requestMatchers("/api/users/**").hasRole("SYSTEM_ADMIN")
                         .requestMatchers("/api/clients/**").hasRole("SYSTEM_ADMIN")
+                        .requestMatchers("/api/departments/**").hasAnyRole("SYSTEM_ADMIN", "EMPLOYER")
                         .requestMatchers("/api/employee-types/**").hasAnyRole("SYSTEM_ADMIN", "EMPLOYER")
                         .requestMatchers("/api/leave-types/**").hasAnyRole("SYSTEM_ADMIN", "EMPLOYER")
                         .requestMatchers("/api/employees/**").hasAnyRole("SYSTEM_ADMIN", "EMPLOYER")
                         .requestMatchers("/api/leave-allocations/**").hasAnyRole("SYSTEM_ADMIN", "EMPLOYER")
                         .requestMatchers("/api/leave-requests/**").hasAnyRole("SYSTEM_ADMIN", "EMPLOYER")
+                        .requestMatchers("/api/emergency-contacts/**").hasAnyRole("SYSTEM_ADMIN", "EMPLOYER")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -51,8 +53,7 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider =
-                new DaoAuthenticationProvider(customUserDetailsService);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(customUserDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
