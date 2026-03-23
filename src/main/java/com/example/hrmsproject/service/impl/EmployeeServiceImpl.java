@@ -1,16 +1,13 @@
 package com.example.hrmsproject.service.impl;
 
-import com.example.hrmsproject.entity.Employee;
-import com.example.hrmsproject.entity.EmployeeType;
-import com.example.hrmsproject.entity.LeaveAllocation;
-import com.example.hrmsproject.entity.LeaveType;
-import com.example.hrmsproject.repository.EmployeeRepository;
-import com.example.hrmsproject.repository.EmployeeTypeRepository;
-import com.example.hrmsproject.repository.LeaveAllocationRepository;
-import com.example.hrmsproject.repository.LeaveTypeRepository;
+import com.example.hrmsproject.dto.EmployeeProfileDto;
+import com.example.hrmsproject.dto.EmergencyContactDto;
+import com.example.hrmsproject.dto.LeaveBalanceDto;
+import com.example.hrmsproject.entity.*;
+import com.example.hrmsproject.repository.*;
 import com.example.hrmsproject.service.EmployeeService;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Year;
 import java.util.List;
@@ -23,19 +20,25 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeTypeRepository employeeTypeRepository;
     private final LeaveTypeRepository leaveTypeRepository;
     private final LeaveAllocationRepository leaveAllocationRepository;
+    private final DepartmentRepository departmentRepository;
+    private final EmployeeEmergencyContactRepository emergencyContactRepository;
 
     public EmployeeServiceImpl(EmployeeRepository employeeRepository,
                                EmployeeTypeRepository employeeTypeRepository,
                                LeaveTypeRepository leaveTypeRepository,
-                               LeaveAllocationRepository leaveAllocationRepository) {
+                               LeaveAllocationRepository leaveAllocationRepository,
+                               DepartmentRepository departmentRepository,
+                               EmployeeEmergencyContactRepository emergencyContactRepository) {
         this.employeeRepository = employeeRepository;
         this.employeeTypeRepository = employeeTypeRepository;
         this.leaveTypeRepository = leaveTypeRepository;
         this.leaveAllocationRepository = leaveAllocationRepository;
+        this.departmentRepository = departmentRepository;
+        this.emergencyContactRepository = emergencyContactRepository;
     }
 
-    @Transactional //without this, partial data gets saved
     @Override
+    @Transactional
     public Employee saveEmployee(Employee employee) {
         Employee savedEmployee = employeeRepository.save(employee);
 
@@ -49,6 +52,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         LeaveType casualLeaveType = leaveTypeRepository
                 .findByClientIdAndNameIgnoreCase(savedEmployee.getClientId(), "Casual")
                 .orElseThrow(() -> new RuntimeException("Casual leave type not found"));
+
+        LeaveType sickLeaveType = leaveTypeRepository
+                .findByClientIdAndNameIgnoreCase(savedEmployee.getClientId(), "Sick")
+                .orElseThrow(() -> new RuntimeException("Sick leave type not found"));
 
         LeaveAllocation annualAllocation = new LeaveAllocation();
         annualAllocation.setClientId(savedEmployee.getClientId());
@@ -67,6 +74,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         casualAllocation.setUsedDays(0);
         casualAllocation.setYear(Year.now().getValue());
         leaveAllocationRepository.save(casualAllocation);
+
+        LeaveAllocation sickAllocation = new LeaveAllocation();
+        sickAllocation.setClientId(savedEmployee.getClientId());
+        sickAllocation.setEmployeeId(savedEmployee.getId());
+        sickAllocation.setLeaveTypeId(sickLeaveType.getId());
+        sickAllocation.setTotalDays(employeeType.getSickLeaveDays());
+        sickAllocation.setUsedDays(0);
+        sickAllocation.setYear(Year.now().getValue());
+        leaveAllocationRepository.save(sickAllocation);
 
         return savedEmployee;
     }
@@ -93,15 +109,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         existing.setClientId(employee.getClientId());
         existing.setEmployeeTypeId(employee.getEmployeeTypeId());
+        existing.setDepartmentId(employee.getDepartmentId());
         existing.setFirstName(employee.getFirstName());
         existing.setLastName(employee.getLastName());
         existing.setEmail(employee.getEmail());
+        existing.setPhone(employee.getPhone());
         existing.setJoinDate(employee.getJoinDate());
         existing.setStatus(employee.getStatus());
         existing.setAddress(employee.getAddress());
         existing.setNic(employee.getNic());
         existing.setDob(employee.getDob());
-        existing.setEmergencyContact(employee.getEmergencyContact());
+        existing.setRole(employee.getRole());
 
         return employeeRepository.save(existing);
     }
@@ -109,5 +127,60 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void deleteEmployee(Long id) {
         employeeRepository.deleteById(id);
+    }
+
+    @Override
+    public EmployeeProfileDto getEmployeeProfile(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        EmployeeType employeeType = employeeTypeRepository.findById(employee.getEmployeeTypeId()).orElse(null);
+        Department department = employee.getDepartmentId() != null
+                ? departmentRepository.findById(employee.getDepartmentId()).orElse(null)
+                : null;
+
+        List<EmergencyContactDto> contacts = emergencyContactRepository.findByEmployeeId(employeeId)
+                .stream()
+                .map(c -> new EmergencyContactDto(
+                        c.getId(),
+                        c.getName(),
+                        c.getRelationship(),
+                        c.getPhone()
+                ))
+                .toList();
+
+        List<LeaveBalanceDto> leaveBalances = leaveAllocationRepository.findByEmployeeId(employeeId)
+                .stream()
+                .map(a -> {
+                    LeaveType lt = leaveTypeRepository.findById(a.getLeaveTypeId()).orElse(null);
+                    int remaining = a.getTotalDays() - a.getUsedDays();
+                    return new LeaveBalanceDto(
+                            a.getLeaveTypeId(),
+                            lt != null ? lt.getName() : "Unknown",
+                            a.getTotalDays(),
+                            a.getUsedDays(),
+                            remaining
+                    );
+                })
+                .toList();
+
+        return EmployeeProfileDto.builder()
+                .id(employee.getId())
+                .clientId(employee.getClientId())
+                .firstName(employee.getFirstName())
+                .lastName(employee.getLastName())
+                .email(employee.getEmail())
+                .phone(employee.getPhone())
+                .joinDate(employee.getJoinDate())
+                .status(employee.getStatus())
+                .address(employee.getAddress())
+                .nic(employee.getNic())
+                .dob(employee.getDob())
+                .role(employee.getRole())
+                .employeeTypeName(employeeType != null ? employeeType.getName() : null)
+                .departmentName(department != null ? department.getName() : null)
+                .emergencyContacts(contacts)
+                .leaveBalances(leaveBalances)
+                .build();
     }
 }

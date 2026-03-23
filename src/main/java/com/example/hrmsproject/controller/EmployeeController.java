@@ -1,5 +1,6 @@
 package com.example.hrmsproject.controller;
 
+import com.example.hrmsproject.dto.EmployeeProfileDto;
 import com.example.hrmsproject.entity.Employee;
 import com.example.hrmsproject.service.EmployeeService;
 import org.springframework.http.ResponseEntity;
@@ -43,5 +44,10 @@ public class EmployeeController {
     public ResponseEntity<String> deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
         return ResponseEntity.ok("Employee deleted successfully");
+    }
+
+    @GetMapping("/{id}/profile")
+    public ResponseEntity<EmployeeProfileDto> getEmployeeProfile(@PathVariable Long id) {
+        return ResponseEntity.ok(employeeService.getEmployeeProfile(id));
     }
 }
