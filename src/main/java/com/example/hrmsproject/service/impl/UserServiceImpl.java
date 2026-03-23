@@ -51,6 +51,7 @@ public class UserServiceImpl implements UserService {
             user.setClientId(null);
         }
 
+        // IMPORTANT: encode password before save
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return userRepository.save(user);
@@ -61,6 +62,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(loginRequestDto.getUsername())
                 .orElseThrow(() -> new RuntimeException("Invalid username"));
 
+        // IMPORTANT: compare raw password with encoded DB password
         if (!passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
@@ -107,11 +109,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         existingUser.setUsername(user.getUsername());
-
-        if (user.getPassword() != null && !user.getPassword().isBlank()) {
-            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-
         existingUser.setRole(user.getRole());
 
         if (user.getRole() == UserRole.EMPLOYER) {
@@ -125,6 +122,11 @@ public class UserServiceImpl implements UserService {
             existingUser.setClientId(user.getClientId());
         } else {
             existingUser.setClientId(null);
+        }
+
+        // only encode when new password is sent
+        if (user.getPassword() != null && !user.getPassword().isBlank()) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
         }
 
         return userRepository.save(existingUser);
