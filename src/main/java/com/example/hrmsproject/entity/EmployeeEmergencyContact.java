@@ -7,27 +7,20 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "employee_types")
+@Table(name = "employee_emergency_contacts")
 @Data
-public class EmployeeType {
+public class EmployeeEmergencyContact {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "client_id")
-    private Long clientId;
+    @Column(name = "employee_id", nullable = false)
+    private Long employeeId;
 
     private String name;
-
-    @Column(name = "annual_leave_days")
-    private Integer annualLeaveDays;
-
-    @Column(name = "casual_leave_days")
-    private Integer casualLeaveDays;
-
-    @Column(name = "sick_leave_days")
-    private Integer sickLeaveDays;
+    private String relationship;
+    private String phone;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

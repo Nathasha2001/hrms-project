@@ -1,0 +1,11 @@
+package com.example.hrmsproject.repository;
+
+import com.example.hrmsproject.entity.Expense;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface ExpenseRepository extends JpaRepository<Expense, Long> {
+    List<Expense> findByEmployeeId(Long employeeId);
+    List<Expense> findByClientId(Long clientId);
+}

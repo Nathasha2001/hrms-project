@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "employee_types")
+@Table(name = "expenses")
 @Data
-public class EmployeeType {
+public class Expense {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,16 +20,17 @@ public class EmployeeType {
     @Column(name = "client_id")
     private Long clientId;
 
-    private String name;
+    @Column(name = "employee_id")
+    private Long employeeId;
 
-    @Column(name = "annual_leave_days")
-    private Integer annualLeaveDays;
+    private BigDecimal amount;
+    private String category;
+    private String description;
 
-    @Column(name = "casual_leave_days")
-    private Integer casualLeaveDays;
+    @Column(name = "expense_date")
+    private LocalDate expenseDate;
 
-    @Column(name = "sick_leave_days")
-    private Integer sickLeaveDays;
+    private String status;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

@@ -1,7 +1,6 @@
 package com.example.hrmsproject.entity;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -10,48 +9,48 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table( name= "employees")
+@Table(name = "employees")
 @Data
 public class Employee {
 
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name ="client_id")
+    @Column(name = "client_id", nullable = false)
     private Long clientId;
 
-    @Column(name = "employee_type_id")
+    @Column(name = "employee_type_id", nullable = false)
     private Long employeeTypeId;
+
+    @Column(name = "department_id")
+    private Long departmentId;
 
     @Column(name = "first_name")
     private String firstName;
 
-    @Column(name= "last_name")
+    @Column(name = "last_name")
     private String lastName;
 
     private String email;
+    private String phone;
 
-    private String address;
-
-    @Column(name= "join_date")
+    @Column(name = "join_date")
     private LocalDate joinDate;
 
     private String status;
-
+    private String address;
     private String nic;
-
     private LocalDate dob;
 
-    @Column(name = "emergency_contact")
-    private String emergencyContact;
+    @Column(name = "role")
+    private String role; // admin / employer / employee
 
     @CreationTimestamp
-    @Column (name ="created_at", updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name= "updated_at")
-    private LocalDateTime updated_at;
-
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }
