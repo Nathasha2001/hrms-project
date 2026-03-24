@@ -1,5 +1,6 @@
 package com.example.hrmsproject.service.impl;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.example.hrmsproject.entity.EmployeeEmergencyContact;
 import com.example.hrmsproject.repository.EmployeeEmergencyContactRepository;
 import com.example.hrmsproject.service.EmployeeEmergencyContactService;
@@ -16,6 +17,7 @@ public class EmployeeEmergencyContactServiceImpl implements EmployeeEmergencyCon
 
     @Override
     public EmployeeEmergencyContact saveContact(EmployeeEmergencyContact contact) {
+        System.out.println("Employee Id: "+ contact.getEmployeeId());
         return repository.save(contact);
     }
 
@@ -31,7 +33,6 @@ public class EmployeeEmergencyContactServiceImpl implements EmployeeEmergencyCon
 
         existing.setEmployeeId(contact.getEmployeeId());
         existing.setName(contact.getName());
-        existing.setRelationship(contact.getRelationship());
         existing.setPhone(contact.getPhone());
 
         return repository.save(existing);

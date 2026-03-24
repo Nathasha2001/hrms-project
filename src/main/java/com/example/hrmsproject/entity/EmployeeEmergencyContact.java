@@ -15,14 +15,22 @@ public class EmployeeEmergencyContact {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    public Long hetEmployeeId(){
+        return employeeId;
+    }
+    public void setEmployeeId(Long employeeId){
+        this.employeeId = employeeId;
+    }
+
     @Column(name = "employee_id", nullable = false)
     private Long employeeId;
 
     private String name;
-    private String relationship;
     private String phone;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+
 }

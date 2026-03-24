@@ -3,8 +3,17 @@ package com.example.hrmsproject.service.impl;
 import com.example.hrmsproject.dto.EmployeeProfileDto;
 import com.example.hrmsproject.dto.EmergencyContactDto;
 import com.example.hrmsproject.dto.LeaveBalanceDto;
-import com.example.hrmsproject.entity.*;
-import com.example.hrmsproject.repository.*;
+import com.example.hrmsproject.entity.Department;
+import com.example.hrmsproject.entity.Employee;
+import com.example.hrmsproject.entity.EmployeeType;
+import com.example.hrmsproject.entity.LeaveAllocation;
+import com.example.hrmsproject.entity.LeaveType;
+import com.example.hrmsproject.repository.DepartmentRepository;
+import com.example.hrmsproject.repository.EmployeeEmergencyContactRepository;
+import com.example.hrmsproject.repository.EmployeeRepository;
+import com.example.hrmsproject.repository.EmployeeTypeRepository;
+import com.example.hrmsproject.repository.LeaveAllocationRepository;
+import com.example.hrmsproject.repository.LeaveTypeRepository;
 import com.example.hrmsproject.service.EmployeeService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -135,6 +144,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
         EmployeeType employeeType = employeeTypeRepository.findById(employee.getEmployeeTypeId()).orElse(null);
+
         Department department = employee.getDepartmentId() != null
                 ? departmentRepository.findById(employee.getDepartmentId()).orElse(null)
                 : null;
@@ -144,7 +154,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .map(c -> new EmergencyContactDto(
                         c.getId(),
                         c.getName(),
-                        c.getRelationship(),
                         c.getPhone()
                 ))
                 .toList();
@@ -154,6 +163,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .map(a -> {
                     LeaveType lt = leaveTypeRepository.findById(a.getLeaveTypeId()).orElse(null);
                     int remaining = a.getTotalDays() - a.getUsedDays();
+
                     return new LeaveBalanceDto(
                             a.getLeaveTypeId(),
                             lt != null ? lt.getName() : "Unknown",
