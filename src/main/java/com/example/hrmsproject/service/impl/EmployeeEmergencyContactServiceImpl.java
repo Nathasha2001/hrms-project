@@ -1,10 +1,8 @@
 package com.example.hrmsproject.service.impl;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import com.example.hrmsproject.entity.EmployeeEmergencyContact;
 import com.example.hrmsproject.repository.EmployeeEmergencyContactRepository;
 import com.example.hrmsproject.service.EmployeeEmergencyContactService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,12 +10,26 @@ import java.util.List;
 @Service
 public class EmployeeEmergencyContactServiceImpl implements EmployeeEmergencyContactService {
 
-    @Autowired
-    private EmployeeEmergencyContactRepository repository;
+    private final EmployeeEmergencyContactRepository repository;
+
+    public EmployeeEmergencyContactServiceImpl(EmployeeEmergencyContactRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public EmployeeEmergencyContact saveContact(EmployeeEmergencyContact contact) {
-        System.out.println("Employee Id: "+ contact.getEmployeeId());
+        if (contact.getEmployeeId() == null) {
+            throw new RuntimeException("employeeId is required");
+        }
+
+        if (contact.getName() == null || contact.getName().trim().isEmpty()) {
+            throw new RuntimeException("name is required");
+        }
+
+        if (contact.getPhone() == null || contact.getPhone().trim().isEmpty()) {
+            throw new RuntimeException("phone is required");
+        }
+
         return repository.save(contact);
     }
 
@@ -31,6 +43,18 @@ public class EmployeeEmergencyContactServiceImpl implements EmployeeEmergencyCon
         EmployeeEmergencyContact existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Emergency contact not found"));
 
+        if (contact.getEmployeeId() == null) {
+            throw new RuntimeException("employeeId is required");
+        }
+
+        if (contact.getName() == null || contact.getName().trim().isEmpty()) {
+            throw new RuntimeException("name is required");
+        }
+
+        if (contact.getPhone() == null || contact.getPhone().trim().isEmpty()) {
+            throw new RuntimeException("phone is required");
+        }
+
         existing.setEmployeeId(contact.getEmployeeId());
         existing.setName(contact.getName());
         existing.setPhone(contact.getPhone());
@@ -42,6 +66,7 @@ public class EmployeeEmergencyContactServiceImpl implements EmployeeEmergencyCon
     public void deleteContact(Long id) {
         EmployeeEmergencyContact existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Emergency contact not found"));
+
         repository.delete(existing);
     }
 }

@@ -1,36 +1,62 @@
 package com.example.hrmsproject.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "employee_emergency_contacts")
-@Data
 public class EmployeeEmergencyContact {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    public Long hetEmployeeId(){
-        return employeeId;
-    }
-    public void setEmployeeId(Long employeeId){
-        this.employeeId = employeeId;
-    }
-
     @Column(name = "employee_id", nullable = false)
     private Long employeeId;
 
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String phone;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    public EmployeeEmergencyContact() {
+    }
 
+    public EmployeeEmergencyContact(Long employeeId, String name, String phone) {
+        this.employeeId = employeeId;
+        this.name = name;
+        this.phone = phone;
+    }
 
+    public Long getId() {
+        return id;
+    }
+
+    public Long getEmployeeId() {
+        return employeeId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setEmployeeId(Long employeeId) {
+        this.employeeId = employeeId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 }

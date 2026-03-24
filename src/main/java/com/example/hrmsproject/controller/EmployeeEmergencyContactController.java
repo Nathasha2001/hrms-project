@@ -1,8 +1,8 @@
 package com.example.hrmsproject.controller;
 
+import com.example.hrmsproject.dto.EmergencyContactRequestDto;
 import com.example.hrmsproject.entity.EmployeeEmergencyContact;
 import com.example.hrmsproject.service.EmployeeEmergencyContactService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,11 +12,24 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class EmployeeEmergencyContactController {
 
-    @Autowired
-    private EmployeeEmergencyContactService service;
+    private final EmployeeEmergencyContactService service;
+
+    public EmployeeEmergencyContactController(EmployeeEmergencyContactService service) {
+        this.service = service;
+    }
 
     @PostMapping
-    public EmployeeEmergencyContact saveContact(@RequestBody EmployeeEmergencyContact contact) {
+    public EmployeeEmergencyContact saveContact(@RequestBody EmergencyContactRequestDto request) {
+
+        if (request.getEmployeeId() == null) {
+            throw new RuntimeException("employeeId is required");
+        }
+
+        EmployeeEmergencyContact contact = new EmployeeEmergencyContact();
+        contact.setEmployeeId(request.getEmployeeId());
+        contact.setName(request.getName());
+        contact.setPhone(request.getPhone());
+
         return service.saveContact(contact);
     }
 
@@ -26,7 +39,18 @@ public class EmployeeEmergencyContactController {
     }
 
     @PutMapping("/{id}")
-    public EmployeeEmergencyContact updateContact(@PathVariable Long id, @RequestBody EmployeeEmergencyContact contact) {
+    public EmployeeEmergencyContact updateContact(@PathVariable Long id,
+                                                  @RequestBody EmergencyContactRequestDto request) {
+
+        if (request.getEmployeeId() == null) {
+            throw new RuntimeException("employeeId is required");
+        }
+
+        EmployeeEmergencyContact contact = new EmployeeEmergencyContact();
+        contact.setEmployeeId(request.getEmployeeId());
+        contact.setName(request.getName());
+        contact.setPhone(request.getPhone());
+
         return service.updateContact(id, contact);
     }
 
