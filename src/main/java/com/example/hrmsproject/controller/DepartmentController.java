@@ -2,28 +2,42 @@ package com.example.hrmsproject.controller;
 
 import com.example.hrmsproject.entity.Department;
 import com.example.hrmsproject.service.DepartmentService;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/departments")
+@CrossOrigin(origins = "*")
 public class DepartmentController {
 
-    private final DepartmentService departmentService;
-
-    public DepartmentController(DepartmentService departmentService) {
-        this.departmentService = departmentService;
-    }
+    @Autowired
+    private DepartmentService departmentService;
 
     @PostMapping
-    public ResponseEntity<Department> createDepartment(@RequestBody Department department) {
-        return ResponseEntity.ok(departmentService.createDepartment(department));
+    public Department saveDepartment(@RequestBody Department department) {
+        return departmentService.saveDepartment(department);
     }
 
     @GetMapping("/client/{clientId}")
-    public ResponseEntity<List<Department>> getByClient(@PathVariable Long clientId) {
-        return ResponseEntity.ok(departmentService.getDepartmentsByClientId(clientId));
+    public List<Department> getDepartmentsByClientId(@PathVariable Long clientId) {
+        return departmentService.getDepartmentsByClientId(clientId);
+    }
+
+    @GetMapping("/{id}")
+    public Department getDepartmentById(@PathVariable Long id) {
+        return departmentService.getDepartmentById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Department updateDepartment(@PathVariable Long id, @RequestBody Department department) {
+        return departmentService.updateDepartment(id, department);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteDepartment(@PathVariable Long id) {
+        departmentService.deleteDepartment(id);
+        return "Department deleted successfully";
     }
 }
