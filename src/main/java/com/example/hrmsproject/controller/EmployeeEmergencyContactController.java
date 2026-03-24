@@ -2,28 +2,37 @@ package com.example.hrmsproject.controller;
 
 import com.example.hrmsproject.entity.EmployeeEmergencyContact;
 import com.example.hrmsproject.service.EmployeeEmergencyContactService;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/emergency-contacts")
+@RequestMapping("/api/employee-emergency-contacts")
+@CrossOrigin(origins = "*")
 public class EmployeeEmergencyContactController {
 
-    private final EmployeeEmergencyContactService service;
-
-    public EmployeeEmergencyContactController(EmployeeEmergencyContactService service) {
-        this.service = service;
-    }
+    @Autowired
+    private EmployeeEmergencyContactService service;
 
     @PostMapping
-    public ResponseEntity<EmployeeEmergencyContact> create(@RequestBody EmployeeEmergencyContact contact) {
-        return ResponseEntity.ok(service.createContact(contact));
+    public EmployeeEmergencyContact saveContact(@RequestBody EmployeeEmergencyContact contact) {
+        return service.saveContact(contact);
     }
 
     @GetMapping("/employee/{employeeId}")
-    public ResponseEntity<List<EmployeeEmergencyContact>> getByEmployee(@PathVariable Long employeeId) {
-        return ResponseEntity.ok(service.getContactsByEmployeeId(employeeId));
+    public List<EmployeeEmergencyContact> getContactsByEmployeeId(@PathVariable Long employeeId) {
+        return service.getContactsByEmployeeId(employeeId);
+    }
+
+    @PutMapping("/{id}")
+    public EmployeeEmergencyContact updateContact(@PathVariable Long id, @RequestBody EmployeeEmergencyContact contact) {
+        return service.updateContact(id, contact);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteContact(@PathVariable Long id) {
+        service.deleteContact(id);
+        return "Emergency contact deleted successfully";
     }
 }

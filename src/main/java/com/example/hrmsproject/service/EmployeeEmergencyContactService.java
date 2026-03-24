@@ -5,6 +5,8 @@ import com.example.hrmsproject.entity.EmployeeEmergencyContact;
 import java.util.List;
 
 public interface EmployeeEmergencyContactService {
-    EmployeeEmergencyContact createContact(EmployeeEmergencyContact contact);
+    EmployeeEmergencyContact saveContact(EmployeeEmergencyContact contact);
     List<EmployeeEmergencyContact> getContactsByEmployeeId(Long employeeId);
+    EmployeeEmergencyContact updateContact(Long id, EmployeeEmergencyContact contact);
+    void deleteContact(Long id);
 }
